@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+    {% if cart_list %}
+        <h3 class="pb-4 my-3 font-italic">Cart</h3>
+        <div class="row mb-2">
+            {% for cart in cart_list %}
+                <div class="col-md-6">
+                    <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-270 position-relative">
+                        <div class="col p-4 d-flex flex-column position-static">
+                            <h4 class="mb-0">{{ cart.product.name|title }}</h4>
+                            <p class="my-3">Price {{ cart.product.price }}</p>
+                            <p class="my-3">Quantity {{ cart.product_quantity }}</p>
+                            <a href="{{ cart.product.get_absolute_url }}" class="stretched-link">Look details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="m-3">
+                <h3 class="pb-4 font-italic">Total: {{ total_price.price }}</h3>
+            </div>
+            <div class="m-3">
+                <a class="btn btn-outline-success" href="{% url 'payments:order_pay' %}">Pay</a>
+            </div>
+        </div>
+    {% else %}
+        <h3 class="pb-4 my-3 font-italic">Cart empty...</h3>
+    {% endif %}
+
+
+
+{% endblock %}

@@ -1,0 +1,12 @@
+
+Django==2.2
+django-braces==1.11.0
+django-environ==0.4.5
+django-model-utils==3.0.0
+Pillow==7.2.0
+psycopg2==2.8.5
+stripe==2.50.0
+
+django-imagekit==4.0.2
+django-ckeditor==5.9.0
+django-filter==2.3.0

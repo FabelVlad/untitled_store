@@ -1,0 +1,14 @@
+{% block comment_form %}
+    <form action="{{ product.add_comment_url }}" method="POST">
+        {% csrf_token %}
+        {% if comment_form.errors %}
+            <div class="alert alert-danger">
+                {{ comment_form.errors }}
+            </div>
+        {% endif %}
+
+        {{ comment_form.label }}
+        {{ comment_form }}
+        <button type="submit">Leave comment</button>
+    </form>
+{% endblock %}

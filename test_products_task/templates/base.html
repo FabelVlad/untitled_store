@@ -1,0 +1,95 @@
+{% load humanize %}
+{% load static i18n %}
+{% load products_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <title>{% block title %}Store of Electronic parts.{% endblock title %}</title>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+
+    {% block css %}
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+              integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+              crossorigin="anonymous">
+        <!-- Latest compiled JavaScript -->
+        <link href="{% static 'css/project.css' %}" rel="stylesheet">
+        <link href="{% static 'css/products.css' %}" rel="stylesheet">
+    {% endblock css %}
+
+    {% block javascript %}
+        <!--[if lt IE 9]>
+        <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <!-- Latest compiled JavaScript -->
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+                integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+                crossorigin="anonymous"></script>
+        <script type="text/javascript" src="{% static 'js/project.js' %}"></script>
+    {% endblock javascript %}
+</head>
+
+<body>
+<div class="container">
+    <header class="blog-header py-3">
+        <div class="row flex-nowrap justify-content-between align-items-center">
+            <div class="d-flex justify-content-start align-items-center">
+                <a class="blog-header-logo text-dark" href="{% url 'home' %}">Home</a>
+                {% block category %}
+                    {% for category in category_list %}
+                        <a class="m-3 font-italic text-dark" href="{{ category.get_absolute_url }}">{{ category.name|title }}
+                            <span class="badge badge-secondary" id="items_in_cart">{{ category.products__count|intcomma }}</span>
+                        </a>
+                    {% endfor %}
+                {% endblock category %}
+            </div>
+            <div class="d-flex justify-content-end align-items-center">
+                {% if request.user.is_authenticated %}
+                    <a class="m-3 font-italic text-dark" href="{% url 'payments:order_list' %}">Orders</a>
+                    <a class="m-3 font-italic text-dark" href="{% url 'products:cart' %}">Cart
+                        <span class="badge badge-secondary" id="items_in_cart">{% items_in_cart request.user %}</span>
+                    </a>
+                    <h3 class="m-3 font-italic">{{ request.user.username|title }}</h3>
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'users:logout' %}">Logout</a>
+                {% else %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'users:login' %}">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+
+    <ul id="messages">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}" {% endif %}>{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </ul>
+
+    <main class="main">
+        <div class="container">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </main>
+
+    {% block new_arrivals %}
+        {% include 'products/new_arrivals.html' %}
+    {% endblock new_arrivals %}
+</div>
+
+<footer class="blog-footer mt-5">
+    <p>Site built for <a class="text-dark" href="https://steelkiwi.com/">SteelKivi</a> by
+        <a class="text-dark" href="https://www.linkedin.com/in/fabel/">Fabel</a>.
+    </p>
+</footer>
+
+</body>
+</html>
+

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h3>Orders</h3>
+    <div class="list">
+        {% for order in order_list %}
+            <div class="row">
+                <a href="{{ order.get_absolute_url }}">Date: {{ order.created }} Amount: {{ order.amount }} </a>
+                <p>Status: {{ order.status }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

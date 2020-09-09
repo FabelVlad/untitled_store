@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% load humanize %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="https://js.stripe.com/v3/"></script>
+    <script type="text/javascript" src="{% static 'js/payments.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="row mt-2">
+        <div class="col-md-4 order-md-2 mb-4">
+            <ul class="list-group mb-3">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Total (USD)</span>
+                    <strong>${{ total_price|intcomma }}</strong>
+                </li>
+            </ul>
+
+
+        </div>
+        <div class="col-md-8 order-md-1">
+            <h4 class="mb-3">Shipping address</h4>
+            <form method="post" id="stripe-payment-form" data-stripe-key="{{ STRIPE_PUBLIC_KEY }}">
+                {#                {% csrf_token %}#}
+                <div class="mb-3">
+                    <label for="address">Address</label>
+                    <input type="text" class="form-control" id="address" name="address" placeholder="1234 Main St"
+                           required="">
+                    <div class="invalid-feedback">
+                        Please enter your shipping address.
+                    </div>
+                </div>
+                <h4 class="mb-3">Payment by Stripe</h4>
+                <div class="stripe-form-row my-2">
+                    <label for="stripe-card-element">
+                        {% trans 'Credit or debit card' %}
+                    </label>
+                    <div id="stripe-card-element">
+                        <!-- a Stripe Element will be inserted here. -->
+                    </div>
+
+                    <!-- Used to display form errors -->
+                    <div id="stripe-card-errors" role="alert"></div>
+                    <div class="stripe-outcome">
+                        <div class="stripe-error{% if form.stripe_token.errors %} visible{% endif %}">
+                            {% if form.stripe_token.errors %}{{ form.stripe_token.errors }}{% endif %}
+                        </div>
+                        {{ form.stripe_token }}
+                    </div>
+                </div>
+                <hr class="mb-4">
+                <button class="btn btn-secondary btn-lg btn-block" type="submit">{% trans 'Submit Payment' %}</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+
+

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div class="row flex-nowrap justify-content-end align-items-center">
+        <a class="my-3 btn btn-sm btn-outline-secondary" href="{{ product.category.get_absolute_url }}">Back</a>
+    </div>
+
+    {% block product_detail %}
+        <div class="row featurette my-4">
+            <div class="col-md-7">
+                <div class="mb-1 text-muted">{{ product.modified|date:"d M Y" }}</div>
+                <h2 class="featurette-heading my-4">{{ product.name|title }}</h2>
+                <h1 class="card-title pricing-card-title">Price {{ product.price }}</h1>
+                <strong class="d-inline-block mb-2 text-dark">{{ product.category.name|title }}</strong>
+                <p class="lead">{{ product.description|safe|title }}</p>
+
+                {% if request.user.is_authenticated %}
+                    <form id="cart-form" action="{{ product.add_to_cart_url }}" method="POST">
+                        <div class="row">
+                            <div class="mx-3">
+                                <button class="btn btn-outline-secondary" type="submit">Add</button>
+                            </div>
+                            <div>
+                                {{ form.product_quantity }}
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
+
+            </div>
+            <div class="col-md-5 border">
+                <img src="{{ product.image.url }}" width="500" height="500" alt="image: {{ product.name }}">
+            </div>
+        </div>
+    {% endblock product_detail %}
+
+    <form id="like-form" class="like-form" action="{{ product.add_like_url }}" method="POST">
+        <button class="btn btn-outline-secondary" type="submit">Like</button>
+        <p id="likes-count" class="badge badge-secondary">{{ product.count_likes }}</p>
+    </form>
+
+    <hr>
+
+    {% block comment_form %}
+        {% include 'products/comment_form.html' %}
+    {% endblock comment_form %}
+
+    {% with product.get_recent_comments as comments %}
+        {% if comments %}
+            <h3>Comments...</h3>
+            <ul class="list-group">
+            {% for comment in comments %}
+                <li class="list-group-item">
+                    {{ comment.text|capfirst }}
+                    {{ comment.modified }}
+                    <br/>
+                </li>
+            {% endfor %}
+        {% else %}
+            <h3>No comments yet ...</h3>
+        {% endif %}
+    {% endwith %}
+</ul>
+{% endblock content %}

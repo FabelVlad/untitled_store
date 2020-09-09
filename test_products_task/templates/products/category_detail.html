@@ -1,0 +1,79 @@
+{% extends "products/category_list.html" %}
+{% load products_extras %}
+{% load humanize %}
+
+{#{% block category %}#}
+{#    <div class="nav-scroller py-1 my-3">#}
+{#        <nav class="nav">#}
+{#            <h3 class="mr-5 font-italic ">Categories</h3>#}
+{#            {% for category_ in category_list %}#}
+{#                {% if category_.name == category.name %}#}
+{#                    <a class="p-2 mx-3 text-dark"#}
+{#                               href="{{ category_.get_absolute_url }}"><strong>{{ category_.name|title }}</strong>#}
+{#                        <small class="text-muted">/ {{ category_.count_products_in_category|intcomma }}</small></a>#}
+{#                {% else %}#}
+{#                    <a class="p-2 mx-3 text-dark"#}
+{#                       href="{{ category_.get_absolute_url }}">{{ category_.name|title }}#}
+{#                        <small class="text-muted">/ {{ category_.count_products_in_category|intcomma }}</small></a>#}
+{#                {% endif %}#}
+{#            {% endfor %}#}
+{#        </nav>#}
+{#    </div>#}
+{##}
+{#    <hr>#}
+{#{% endblock category %}#}
+
+{% block content %}
+
+    {% block product_filter %}
+        <form action="" method="GET">
+            {{ product_filter.form.as_p }}
+
+            <button class="mx-3 btn btn-outline-success" type="submit">Search</button>
+            <a class="btn btn-secondary my-2" href="{{ category.get_absolute_url }}">Reset</a>
+
+        </form>
+    {% endblock %}
+
+
+    <hr>
+
+    {% block products %}
+        <div class="row mb-2">
+            {% for product in object_list %}
+                <div class="col-md-6">
+                    <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-270 position-relative">
+                        <div class="col p-4 d-flex flex-column position-static">
+                            <strong class="d-inline-block mb-2 text-dark">{{ product.category.name|title }}</strong>
+                            <h4 class="mb-0">{{ product.name|title }}</h4>
+                            <h4 class="my-3">Price {{ product.price }}</h4>
+                            <div class="mb-1 text-muted">Likes {{ product.count_likes }}</div>
+                            <p class="card-text mb-auto">{{ product.description|truncatewords:15|safe|title }}</p>
+                            <a href="{{ product.get_absolute_url }}" class="stretched-link">Look details</a>
+                        </div>
+                        <div class="col-auto d-none d-lg-block">
+                            <img src="{{ product.image_thumbnail.url }}" class="card-img-top" width="250" height="270"
+                                 alt="image: {{ product.name }}">
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% endblock %}
+
+    {% block paginator %}
+        <div class="text-center">
+            {% if page_obj.paginator.num_pages > 1 %}
+                {% if page_obj.has_previous %}
+                    <a href="{% relative_url page_obj.previous_page_number 'page' request.GET.urlencode %}">previous</a>
+                {% endif %}
+                <span>page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a href="{% relative_url page_obj.next_page_number 'page' request.GET.urlencode %}">next</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endblock %}
+
+{% endblock content %}

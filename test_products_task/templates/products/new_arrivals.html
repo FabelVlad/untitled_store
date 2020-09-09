@@ -1,0 +1,25 @@
+{% block new_arrivals %}
+
+    <h3 class="pb-4 my-3 font-italic">New Arrivals</h3>
+    <div class="row mb-2">
+        {% for product in new_arrivals %}
+            <div class="col-md-6">
+                <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-270 position-relative">
+                    <div class="col p-4 d-flex flex-column position-static">
+                        <strong class="d-inline-block mb-2 text-dark">{{ product.category.name|title }}</strong>
+                        <h4 class="mb-0">{{ product.name|title }}</h4>
+                        <h4 class="my-3">Price {{ product.price }}</h4>
+                        <div class="mb-1 text-muted">Likes {{ product.count_likes }}</div>
+                        <p class="card-text mb-auto">{{ product.description|truncatewords:15|safe|title }}</p>
+                        <a href="{{ product.get_absolute_url }}" class="stretched-link">Look details</a>
+                    </div>
+                    <div class="col-auto d-none d-lg-block">
+                        <img src="{{ product.image_thumbnail.url }}" class="card-img-top" width="250" height="270"
+                             alt="image: {{ product.name }}">
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
