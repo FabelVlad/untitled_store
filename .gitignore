@@ -60,7 +60,10 @@ venv
 .venv
 
 # media path
-test_products_task/media
+store_apps/media
 
 # memory profiler files
 *.dat
+
+# additional
+project_files

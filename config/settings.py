@@ -5,17 +5,19 @@ from __future__ import absolute_import, unicode_literals
 import os
 import sys
 
-import environ
+import sentry_sdk
+from environ import environ
+from sentry_sdk.integrations.django import DjangoIntegration
 
-ROOT_DIR = environ.Path(__file__) - 2  # (/a/myfile.py - 2 = /)
-APPS_DIR = ROOT_DIR.path('test_products_task')
+ROOT_DIR = environ.Path(__file__) - 2
+APPS_DIR = ROOT_DIR.path('store_apps')
 # sys.path.append(str(ROOT_DIR))
 
 env = environ.Env(
     DJANGO_DEBUG=(bool, True),
     DJANGO_SECRET_KEY=(str, ''),
     DJANGO_ADMINS=(list, []),
-    DJANGO_ALLOWED_HOSTS=(list, []),
+    DJANGO_ALLOWED_HOSTS=(list, ['*']),
     DJANGO_STATIC_ROOT=(str, str(APPS_DIR('staticfiles'))),
     DJANGO_MEDIA_ROOT=(str, str(APPS_DIR('media'))),
     DJANGO_DATABASE_URL=(str, ''),
@@ -25,7 +27,6 @@ env = environ.Env(
     DJANGO_STRIPE_PUBLIC_KEY=(str, ''),
     DJANGO_STRIPE_SECRET_KEY=(str, ''),
 
-    DJANGO_USE_DEBUG_TOOLBAR=(bool, True),
     DJANGO_TEST_RUN=(bool, False),
 
     DJANGO_HEALTH_CHECK_BODY=(str, 'Success'),
@@ -78,9 +79,9 @@ THIRD_PARTY_APPS = (
 )
 
 LOCAL_APPS = (
-    'test_products_task.users.apps.UsersConfig',
-    'test_products_task.products.apps.ProductsConfig',
-    'test_products_task.payments.apps.PaymentsConfig',
+    'store_apps.users.apps.UsersConfig',
+    'store_apps.products.apps.ProductsConfig',
+    'store_apps.payments.apps.PaymentsConfig',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -92,26 +93,30 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
-EMAIL_URL = env.email_url('DJANGO_EMAIL_URL')
-EMAIL_BACKEND = EMAIL_URL['EMAIL_BACKEND']
-EMAIL_HOST = EMAIL_URL.get('EMAIL_HOST', '')
-if EMAIL_URL.get('EMAIL_HOST_PASSWORD', '') == 'special':
-    EMAIL_HOST_PASSWORD = env('DJANGO_EMAIL_HOST_PASSWORD_SPECIAL')
-else:
-    EMAIL_HOST_PASSWORD = EMAIL_URL.get('EMAIL_HOST_PASSWORD', '')
-EMAIL_HOST_USER = EMAIL_URL.get('EMAIL_HOST_USER', '')
-EMAIL_PORT = EMAIL_URL.get('EMAIL_PORT', '')
-EMAIL_USE_SSL = 'EMAIL_USE_SSL' in EMAIL_URL
-EMAIL_USE_TLS = 'EMAIL_USE_TLS' in EMAIL_URL
-EMAIL_FILE_PATH = EMAIL_URL.get('EMAIL_FILE_PATH', '')
+""" Settings for mailling """
+
+EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND')
+EMAIL_FILE_PATH = env('', default=f'{ROOT_DIR}/app_mails')
+EMAIL_HOST = env('DJANGO_EMAIL_HOST')
+EMAIL_HOST_PASSWORD = env('DJANGO_EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = env('DJANGO_EMAIL_HOST_USER')
+EMAIL_PORT = env.int('DJANGO_EMAIL_PORT')
+EMAIL_USE_TLS = env.bool('DJANGO_EMAIL_USE_TLS')
+EMAIL_USE_SSL = env.bool('DJANGO_EMAIL_USE_SSL', default=False)
+EMAIL_SSL_CERTFILE = env('DJANGO_EMAIL_SSL_CERTFILE', default=None)
+EMAIL_SSL_KEYFILE = env('DJANGO_EMAIL_SSL_KEYFILE', default=None)
+# EMAIL_TIMEOUT
 
 DEFAULT_FROM_EMAIL = env('DJANGO_DEFAULT_FROM_EMAIL')
 SERVER_EMAIL = env('DJANGO_SERVER_EMAIL')
@@ -205,16 +210,30 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True
         },
-        'test_products_task.payments.stripe_service': {
-            'handlers': ['console', 'mail_admins'],
+        'django.db.backends': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True
+        },
+        'store_apps.payments.stripe_service': {
+            'handlers': ['mail_admins'],
             'propagate': True,
-            'level': 'DEBUG',
+            'level': 'WARN',
         },
     }
 }
 
-USE_DEBUG_TOOLBAR = env.bool('DJANGO_USE_DEBUG_TOOLBAR')
-if USE_DEBUG_TOOLBAR:
+""" Settings for Sentry https://docs.sentry.io/platforms/python/guides/django/ """
+
+USE_SENTRY = env.bool('DJANGO_USE_SENTRY')
+if USE_SENTRY:
+    sentry_sdk.init(
+        dsn=env.str('DJANGO_SENTRY_DSN'),
+        integrations=[DjangoIntegration()],
+        send_default_pii=True
+    )
+
+if DEBUG:
     MIDDLEWARE += [
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     ]
@@ -242,5 +261,19 @@ HEALTH_CHECK_BODY = env('DJANGO_HEALTH_CHECK_BODY')
 STRIPE_PUBLIC_KEY = env.str('DJANGO_STRIPE_PUBLIC_KEY')
 STRIPE_SECRET_KEY = env.str('DJANGO_STRIPE_SECRET_KEY')
 
-"""Settings for django-filter"""
+""" Settings for django-filter """
+
 FILTERS_EMPTY_CHOICE_LABEL = 'All'
+
+""" Sessions settings """
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+""" Cache settings """
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}

@@ -8,22 +8,22 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
-from test_products_task.products.views import CategoryListView
+from store_apps.products.views import CategoryListView
 
 urlpatterns = [
     url(r'^$', CategoryListView.as_view(), name="home"),
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, include(admin.site.urls[:2], namespace=admin.site.urls[2])),
-    url(r'^products/', include(("test_products_task.products.urls", 'products'), namespace="products")),
-    url(r'^users/', include(("test_products_task.users.urls", 'users'), namespace="users")),
-    url(r'^payments/', include(("test_products_task.payments.urls", 'payments'), namespace="payments")),
+    url(r'^products/', include(("store_apps.products.urls", 'products'), namespace="products")),
+    url(r'^users/', include(("store_apps.users.urls", 'users'), namespace="users")),
+    url(r'^payments/', include(("store_apps.payments.urls", 'payments'), namespace="payments")),
 ]
 
-if settings.USE_DEBUG_TOOLBAR:
+if settings.DEBUG:
     import debug_toolbar
 
     urlpatterns = [url(r'^__debug__/', include(debug_toolbar.urls)), ] + urlpatterns
-
-if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
