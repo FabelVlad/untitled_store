@@ -19,7 +19,7 @@ env = environ.Env(
     DJANGO_ALLOWED_HOSTS=(list, ['*']),
     DJANGO_STATIC_ROOT=(str, str(APPS_DIR('staticfiles'))),
     DJANGO_MEDIA_ROOT=(str, str(APPS_DIR('media'))),
-    DJANGO_DATABASE_URL=(str, ''),
+    DJANGO_DATABASE_URL=(str, f'sqlite:////{str(ROOT_DIR)}\\django_sqlite.db'),
     DJANGO_EMAIL_URL=(environ.Env.email_url_config, 'consolemail://'),
     DJANGO_DEFAULT_FROM_EMAIL=(str, 'admin@example.com'),
     DJANGO_SERVER_EMAIL=(str, 'root@localhost.com'),
@@ -56,6 +56,11 @@ USE_TZ = True
 DATABASES = {
     'default': env.db('DJANGO_DATABASE_URL')
 }
+
+if DEBUG is False:
+    import dj_database_url
+
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=600, ssl_require=True))
 
 DJANGO_APPS = (
     'django.contrib.auth',
