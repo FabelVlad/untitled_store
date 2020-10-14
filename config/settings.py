@@ -11,7 +11,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 ROOT_DIR = environ.Path(__file__) - 2
 APPS_DIR = ROOT_DIR.path('store_apps')
-# sys.path.append(str(ROOT_DIR))
 
 env = environ.Env(
     DJANGO_DEBUG=(bool, True),
@@ -26,9 +25,7 @@ env = environ.Env(
     DJANGO_SERVER_EMAIL=(str, 'root@localhost.com'),
     DJANGO_STRIPE_PUBLIC_KEY=(str, ''),
     DJANGO_STRIPE_SECRET_KEY=(str, ''),
-
     DJANGO_TEST_RUN=(bool, False),
-
     DJANGO_HEALTH_CHECK_BODY=(str, 'Success'),
 )
 

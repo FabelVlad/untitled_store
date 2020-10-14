@@ -1,3 +1,19 @@
-# This file is here because many Platforms as a Service look for
-#	requirements.txt in the root directory of a project.
--r requirements/production.txt
+Django==2.2
+django-braces==1.11.0
+django-environ==0.4.5
+django-model-utils==3.0.0
+Pillow==7.2.0
+psycopg2==2.8.5
+django-imagekit==4.0.2
+django-ckeditor==5.9.0
+django-filter==2.3.0
+whitenoise==5.2.0
+django-debug-toolbar==2.2
+factory-boy==3.0.1
+freezegun==0.3.15
+memory-profiler==0.57.0
+matplotlib==3.3.0
+gunicorn==19.6.0
+sentry-sdk==0.17.4
+stripe==2.50.0
+python-memcached==1.59
