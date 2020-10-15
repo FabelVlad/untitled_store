@@ -235,7 +235,7 @@ if USE_SENTRY:
         send_default_pii=True
     )
 
-if DEBUG:
+if DEBUG is False:
     MIDDLEWARE += [
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     ]
@@ -253,7 +253,7 @@ if DEBUG:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
     # http://django-debug-toolbar.readthedocs.org/en/latest/installation.html
-    INTERNAL_IPS = ('127.0.0.1', '0.0.0.0', '10.0.2.2',)
+    INTERNAL_IPS = ('127.0.0.1', '0.0.0.0', '10.0.2.2', '213.200.36.33',)
 
 if env.bool('DJANGO_TEST_RUN'):
     pass
@@ -273,9 +273,51 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 """ Cache settings """
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-    }
-}
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#         'LOCATION': '127.0.0.1:11211',
+#     }
+# }
+
+def get_cache():
+    import os
+    try:
+        servers = os.environ['MEMCACHIER_SERVERS']
+        username = os.environ['MEMCACHIER_USERNAME']
+        password = os.environ['MEMCACHIER_PASSWORD']
+        return {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+                'TIMEOUT': None,
+                'LOCATION': servers,
+                'OPTIONS': {
+                    'binary': True,
+                    'username': username,
+                    'password': password,
+                    'behaviors': {
+                        'no_block': True,
+                        'tcp_nodelay': True,
+                        'tcp_keepalive': True,
+                        'connect_timeout': 2000,  # ms
+                        'send_timeout': 750 * 1000,  # us
+                        'receive_timeout': 750 * 1000,  # us
+                        '_poll_timeout': 2000,  # ms
+                        'ketama': True,
+                        'remove_failed': 1,
+                        'retry_timeout': 2,
+                        'dead_timeout': 30,
+                    }
+                }
+            }
+        }
+    except:
+        return {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+            }
+        }
+
+
+CACHES = get_cache()

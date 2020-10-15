@@ -19,7 +19,7 @@ urlpatterns = [
     url(r'^payments/', include(("store_apps.payments.urls", 'payments'), namespace="payments")),
 ]
 
-if settings.DEBUG:
+if settings.DEBUG is False:
     import debug_toolbar
 
     urlpatterns = [url(r'^__debug__/', include(debug_toolbar.urls)), ] + urlpatterns
